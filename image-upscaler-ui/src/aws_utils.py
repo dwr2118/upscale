@@ -16,7 +16,7 @@ def run_model_on_ec2(ssh_host, ssh_user, ssh_key_path, local_image_path, remote_
     sftp.close()
 
     # Run the model on the EC2 instance
-    command = f"cd /home/diegorivaslazala/final/ESRGAN && python test.py"  # Navigate to the model directory and run the script
+    command = f"cd /home/{ssh_user}/final/ESRGAN && python test.py"  # Navigate to the model directory and run the script
     stdin, stdout, stderr = ssh.exec_command(command)
     print(stdout.read().decode())
     print(stderr.read().decode())

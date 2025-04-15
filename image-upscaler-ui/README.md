@@ -39,7 +39,6 @@ pip install -r requirements.txt
 ### 3. Configure SSH Credentials
 Update the `src/credentials.py` file with your EC2 instance details:
 ```python
-# filepath: src/credentials.py
 SSH_HOST = "your-ec2-public-ip"
 SSH_USER = "your-ssh-username"
 SSH_KEY_PATH = "/path/to/your/private-key.pem"
@@ -48,7 +47,7 @@ SSH_KEY_PATH = "/path/to/your/private-key.pem"
 ### 4. Prepare the EC2 Instance
 To run the ESRGAN model on an EC2 instance, follow these steps:
 
-#### a. Launch an EC2 Instance
+#### a. Get EC2 Instance Info
 1. Go to Courseworks > Deep Learning > Go to Announcements
 2. Find the most recent Announcement containing the ec2 instance's public ip
 
@@ -76,6 +75,27 @@ Clone the ESRGAN repository and place the model weights in the appropriate direc
 git clone https://github.com/xinntao/ESRGAN.git
 cd ESRGAN
 mv ../RRDB_ESRGAN_x4.pth models/
+```
+
+## EC2 Instance File Structure
+
+Once the ESRGAN repository and model weights are set up on the EC2 instance, the directory structure should look like this:
+
+```
+ESRGAN/
+├── LICENSE
+├── LR/                   # Folder for low-resolution input images
+├── QA.md
+├── README.md
+├── RRDBNet_arch.py
+├── __pycache__/          # Python cache files
+├── figures/              # Example figures (optional)
+├── models/               # Folder containing the ESRGAN model weights
+│   └── RRDB_ESRGAN_x4.pth
+├── net_interp.py
+├── results/              # Folder where upscaled images will be saved
+├── test.py               # Script to run the ESRGAN model
+└── transer_RRDB_models.py
 ```
 
 #### f. Test the Setup
