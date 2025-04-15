@@ -1,3 +1,3 @@
-SSH_HOST = "ec2-54-237-230-196.compute-1.amazonaws.com"
-SSH_USER = "diegorivaslazala"
-SSH_KEY_PATH = "/Users/diego/Desktop/Columbia Schoolwork/Fourth Year/Spring/Deep Learning for Graphics/DLCG-Spring-2025.pem"
+SSH_HOST = None # insert the ec2 IP address here
+SSH_USER = None # insert the username you use to SSH into the ec2 instance 
+SSH_KEY_PATH = None # insert the absolute path to your .pem key
