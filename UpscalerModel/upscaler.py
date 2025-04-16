@@ -245,6 +245,8 @@ def main():
         for f in files:
             os.remove(f)
 
+    print(len(to_augment))
+    return
     # Generated new augmented images
     augment_images("high_res_img", to_augment, "low_res_img")
 
