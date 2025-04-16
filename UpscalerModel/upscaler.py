@@ -114,8 +114,8 @@ class UpscalerDataset(Dataset):
         low_img = Image.open(low_res_img).convert("RGB")
         high_img = Image.open(high_res_img).convert("RGB")
 
-        norm_low_img = low_img / 255  # Normalize RGB to [0, 1]
-        norm_high_img = high_img / 255 # Normalize RGB to [0, 1]
+        norm_low_img = np.array(low_img).astype(np.float32) / 255.0  # Normalize RGB to [0, 1]
+        norm_high_img = np.array(high_img).astype(np.float32) / 255.0 # Normalize RGB to [0, 1]
 
         low_tensor = torch.from_numpy(norm_low_img).permute(2, 0, 1)  # Shape: [3, H, W]
         high_tensor = torch.from_numpy(norm_high_img).permute(2, 0, 1)  # Shape: [3, H, W]
