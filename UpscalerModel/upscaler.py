@@ -185,8 +185,9 @@ def augment_images(input_dir, input_files='HiResImages', output_dir='Augmented',
         
     processed_count = 0
 
+    print(input_files)
     for filename in input_files:
-        print(filename)
+        # print(filename)
         base_dir = os.getcwd()
         base_dir = os.path.join(base_dir, input_dir)
         input_path = os.path.join(base_dir, filename)
