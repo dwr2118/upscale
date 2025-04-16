@@ -116,8 +116,8 @@ class UpscalerDataset(Dataset):
 
         # Resize images because input images and output images are not uniform
         # respectively
-        # High resolution: target dimensions 300 (height) x 168 (width)
-        # Low resolution: target dimensions 150 (height) x 84 (width)
+        # High resolution: target dimensions 168 (height) x 300 (width)
+        # Low resolution: target dimensions 84 (height) x 150 (width)
         high_img = high_img.resize((300, 168), Image.BICUBIC)
         low_img = low_img.resize((150, 84), Image.BICUBIC)
 
