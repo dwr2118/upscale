@@ -27,23 +27,25 @@ def augment_images(input_dir='HiResImages', output_dir='Augmented', quality=30, 
 
         # Extract the file name and extension
         name, ext = os.path.splitext(filename)
-        
-        # Create the output file name with '_aug' appended
-        output_filename = f"{name}_aug{ext}"
-        output_path = os.path.join(output_dir, output_filename)
 
         # Read the image
         image = cv2.imread(input_path)
         if image is None:
             print(f"Skipping non-image or unreadable file: {filename}")
             continue
-
-        # Degrade image quality
-        degraded = degrade_image_quality(image, quality=quality, resize_scale=resize_scale)
-
-        # Save the degraded image
-        cv2.imwrite(output_path, degraded)
-        processed_count += 1
+        
+        # Loop through degradation levels: 30, 40, 50, 60, 70
+        for i, quality in enumerate(range(30, 71, 10), start=1):
+            # Create the output file name with '_aug' appended
+            output_filename = f"{name}_aug_{str(i).zfill(2)}_q{quality}{ext}"
+            output_path = os.path.join(output_dir, output_filename)
+        
+            # Degrade image quality
+            degraded = degrade_image_quality(image, quality=quality, resize_scale=resize_scale)
+    
+            # Save the degraded image
+            cv2.imwrite(output_path, degraded)
+            processed_count += 1
         
     print(f"Processed {processed_count} images")
 
