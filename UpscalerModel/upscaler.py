@@ -185,12 +185,13 @@ def augment_images(input_dir, input_files='HiResImages', output_dir='Augmented',
         
     processed_count = 0
 
-    print(input_files)
+    # print(input_files)
     for filename in input_files:
-        # print(filename)
-        base_dir = os.getcwd()
-        base_dir = os.path.join(base_dir, input_dir)
-        input_path = os.path.join(base_dir, filename)
+        print(filename)
+        # base_dir = os.getcwd()
+        # base_dir = os.path.join(base_dir, input_dir)
+        # input_path = os.path.join(input_dir, filename)
+        input_path = filename
 
         # Extract the file name and extension
         name, ext = os.path.splitext(filename)
