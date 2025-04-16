@@ -187,11 +187,13 @@ def augment_images(input_dir, input_files='HiResImages', output_dir='Augmented',
 
     # print(input_files)
     for filename in input_files:
-        # print(filename)
+        print(filename)
+        return
         # base_dir = os.getcwd()
         # base_dir = os.path.join(base_dir, input_dir)
         # input_path = os.path.join(input_dir, filename)
         input_path = filename
+
 
         # Extract the file name and extension
         name, ext = os.path.splitext(filename)
@@ -254,7 +256,7 @@ def main():
             os.remove(f)
 
     print(len(to_augment))
-    return
+    # return
     # Generated new augmented images
     augment_images("high_res_img", to_augment, "low_res_img")
 
