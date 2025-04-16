@@ -114,6 +114,14 @@ class UpscalerDataset(Dataset):
         low_img = Image.open(low_res_img).convert("RGB")
         high_img = Image.open(high_res_img).convert("RGB")
 
+        # Resize images because input images and output images are not uniform
+        # respectively
+        # High resolution: target dimensions 300 (height) x 168 (width)
+        # Low resolution: target dimensions 150 (height) x 84 (width)
+        high_img = high_img.resize((168, 300), Image.BICUBIC)
+        low_img = low_img.resize((84, 150), Image.BICUBIC)
+
+
         norm_low_img = np.array(low_img).astype(np.float32) / 255.0  # Normalize RGB to [0, 1]
         norm_high_img = np.array(high_img).astype(np.float32) / 255.0 # Normalize RGB to [0, 1]
 
