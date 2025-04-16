@@ -179,34 +179,37 @@ def degrade_image_quality(image, quality=30, resize_scale=0.5):
     degraded = cv2.imdecode(compressed_img, 1)
     return degraded
 
-def augment_images(input_dir='HiResImages', output_dir='Augmented', quality=30, resize_scale=0.5):
+def augment_images(input_files='HiResImages', output_dir='Augmented', quality=30, resize_scale=0.5):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
         
     processed_count = 0
 
-    for filename in os.listdir(input_dir):
-        input_path = os.path.join(input_dir, filename)
+    for filename in input_files:
+        base_dir = os.getcwd()
+        input_path = os.path.join(base_dir, filename)
 
         # Extract the file name and extension
         name, ext = os.path.splitext(filename)
-        
-        # Create the output file name with '_aug' appended
-        output_filename = f"{name}_aug{ext}"
-        output_path = os.path.join(output_dir, output_filename)
 
         # Read the image
         image = cv2.imread(input_path)
         if image is None:
             print(f"Skipping non-image or unreadable file: {filename}")
             continue
-
-        # Degrade image quality
-        degraded = degrade_image_quality(image, quality=quality, resize_scale=resize_scale)
-
-        # Save the degraded image
-        cv2.imwrite(output_path, degraded)
-        processed_count += 1
+        
+        # Loop through degradation levels: 30, 40, 50, 60, 70
+        for i, quality in enumerate(range(30, 71, 10), start=1):
+            # Create the output file name with '_aug' appended
+            output_filename = f"{name}_aug_{str(i).zfill(2)}_q{quality}{ext}"
+            output_path = os.path.join(output_dir, output_filename)
+        
+            # Degrade image quality
+            degraded = degrade_image_quality(image, quality=quality, resize_scale=resize_scale)
+    
+            # Save the degraded image
+            cv2.imwrite(output_path, degraded)
+            processed_count += 1
         
     print(f"Processed {processed_count} images")
 
@@ -224,12 +227,13 @@ def main():
                             if fname.lower().endswith(('.jpg', '.jpeg', '.png'))]
     
     # Split 90% of the face images to augment, 10% to remain the same
-    # train_size = 0.9
-    # test_size = 0.1
-    # to_augment, to_original = random_split(high_res_paths, [train_size, test_size])
+    train_size = 0.9
+    test_size = 0.1
+    to_augment, to_augment_for_test = random_split(high_res_paths, [train_size, test_size])
 
     # Construct path to augmented directory
     low_res_img = os.path.join(base_dir, "low_res_img/")
+    low_res_img_test = os.path.join(base_dir, "low_res_img_test/")
 
     # Delete all files inside the augmented directory if there are any
     if os.path.exists(low_res_img):
@@ -238,7 +242,7 @@ def main():
             os.remove(f)
 
     # Generated new augmented images
-    augment_images("high_res_img", "low_res_img")
+    augment_images(to_augment, "low_res_img")
 
     # Fetch all image file names in the augmented path
     aug_paths = [os.path.join(low_res_img, fname)
@@ -248,14 +252,44 @@ def main():
     # Kinda redundant, but just changed variable name to store it in
     # train_aug_paths = aug_paths
 
-    dataset = list(zip(aug_paths, high_res_paths))
+    train_dataset = []
+
+    next_img = 0
+    count = 0
+    for train_img in aug_paths:
+        train_dataset.append((train_img, to_augment[next_img]))
+        if count != 5:
+            count += 1
+        else:
+            next_img += 1
+            count = 0
+    
+    # dataset = list(zip(aug_paths, high_res_paths))
 
     # train_res_paths, test_res_paths
 
-    train_size = 0.9
-    test_size = 0.1
-    train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
+    # train_size = 0.9
+    # test_size = 0.1
+    # train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
 
+
+    augment_images(to_augment_for_test, "low_res_img_test")
+
+    aug_paths_test = [os.path.join(low_res_img, fname)
+                            for fname in os.listdir(low_res_img_test)
+                            if fname.lower().endswith(('.jpg', '.jpeg', '.png'))]
+    
+    test_dataset = []
+    
+    next_img = 0
+    count = 0
+    for test_img in aug_paths_test:
+        test_dataset.append((test_img, to_augment_for_test[next_img]))
+        if count != 5:
+            count += 1
+        else:
+            next_img += 1
+            count = 0
 
     # Grab the L*, ab* colorized dataset
     train_dataset = UpscalerDataset(train_dataset)
