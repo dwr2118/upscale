@@ -247,6 +247,12 @@ def main():
         for f in files:
             os.remove(f)
 
+     # Delete all files inside the augmented directory if there are any
+    if os.path.exists(low_res_img_test):
+        files = glob.glob(os.path.join(low_res_img_test, '*'))
+        for f in files:
+            os.remove(f)
+
     print(len(to_augment))
     return
     # Generated new augmented images
