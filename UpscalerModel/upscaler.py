@@ -230,6 +230,8 @@ def main():
                             for fname in os.listdir(high_res_img)
                             if fname.lower().endswith(('.jpg', '.jpeg', '.png'))]
     
+    print(len(high_res_paths))
+    
     # Split 90% of the face images to augment, 10% to remain the same
     train_size = 0.9
     test_size = 0.1
