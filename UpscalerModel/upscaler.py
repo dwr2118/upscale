@@ -164,6 +164,7 @@ def evaluate_and_save(model, test_loader, device, output_folder="PredictedImg"):
     with open(output_file, "a") as f:
         print(f"Test MSE: {mse:.6f}", file=f)
 
+# ==== DATA AUGMENTATION ====
 def degrade_image_quality(image, quality=30, resize_scale=0.5):
     # Resize the image (optional degradation)
     if resize_scale < 1.0:
@@ -184,17 +185,11 @@ def augment_images(input_dir, input_files='HiResImages', output_dir='Augmented',
         os.makedirs(output_dir)
         
     processed_count = 0
-
-    # print(input_files)
     for filename in input_files:
-        # print(filename)
-        # return
-        # base_dir = os.getcwd()
-        # base_dir = os.path.join(base_dir, input_dir)
-        # input_path = os.path.join(input_dir, filename)
+
+        # Get base name of file
         base = os.path.basename(filename)
         input_path = os.path.join(input_dir, base)
-
 
         # Extract the file name and extension
         name, ext = os.path.splitext(base)
@@ -233,9 +228,8 @@ def main():
                             for fname in os.listdir(high_res_img)
                             if fname.lower().endswith(('.jpg', '.jpeg', '.png'))]
     
-    print(len(high_res_paths))
     
-    # Split 90% of the face images to augment, 10% to remain the same
+    # Split 90% of the face images to augment, 10% to augment for testing
     train_size = 0.9
     test_size = 0.1
     to_augment, to_augment_for_test = random_split(high_res_paths, [train_size, test_size])
@@ -256,8 +250,6 @@ def main():
         for f in files:
             os.remove(f)
 
-    print(len(to_augment))
-    # return
     # Generated new augmented images
     augment_images("high_res_img", to_augment, low_res_img)
 
@@ -266,9 +258,7 @@ def main():
                             for fname in os.listdir(low_res_img)
                             if fname.lower().endswith(('.jpg', '.jpeg', '.png'))]
     
-    # Kinda redundant, but just changed variable name to store it in
-    # train_aug_paths = aug_paths
-
+    # Connect all low res training files with the original high res one
     train_dataset = []
 
     next_img = 0
@@ -280,24 +270,14 @@ def main():
         else:
             next_img += 1
             count = 0
-    
-    # dataset = list(zip(aug_paths, high_res_paths))
-
-    # train_res_paths, test_res_paths
-
-    # train_size = 0.9
-    # test_size = 0.1
-    # train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
-
 
     augment_images("high_res_img", to_augment_for_test, low_res_img_test)
-
-    # return
 
     aug_paths_test = [os.path.join(low_res_img_test, fname)
                             for fname in os.listdir(low_res_img_test)
                             if fname.lower().endswith(('.jpg', '.jpeg', '.png'))]
     
+    # Connect all low res testing files with the original high res one
     test_dataset = []
     next_img = 0
     count = 0
@@ -309,29 +289,17 @@ def main():
             next_img += 1
             count = 0
 
-
-    # Confirming if the train and test dataset are linked with
-    # correct high res image
-    # for i in train_dataset:
-    #     print(i)
-    
-    # for j in test_dataset:
-    #     print(j)
-
-    # Grab the RGB tensor from the model
+    # Grab the RGB tensor from the anime dataset
     train_dataset = UpscalerDataset(train_dataset)
-    
-    # Redundant again, but keep the last 10% original into the test dataset
-    # test_high_res_paths = to_original
 
-    # Grab the L*, ab* of the actual face images
+    # Grab the RGB tensor from the anime dataset
     test_dataset = UpscalerDataset(test_dataset)
 
     # DataLoad both the training and testing data set
     train_loader = DataLoader(train_dataset, batch_size=5, shuffle = False)
     test_loader = DataLoader(test_dataset, batch_size=5, shuffle=False)
 
-    # Grab custom made Colorization CNN model
+    # Grab custom made Upscaler CNN model
     upscale_factor = 2 # Images are reduced by 50% size, so need to double output
     num_channels = 3 # RGB has 3 channels
     base_filter = 64 # base filter used for upsampling with pixel shuffling
@@ -375,10 +343,9 @@ def main():
             total_loss += loss.item()
         
         # Print out epoch results
-        # print(f"Epoch {epoch+1}/{num_epochs}: Loss = {total_loss/loss.item():.4f}")
         print(f"Epoch {epoch+1}/{num_epochs}: Training Loss = {total_loss/len(train_loader):.4f}")
-        # print(f"Epoch {epoch+1}/{num_epochs}: Training Loss = {total_loss:.4f}")
         
+        # Training time results
         output_file = "cpu_upscaler.txt"  # Specify the file name
         with open(output_file, "a") as f:
             print(f"--- CPU Colorization Results ---", file=f)
