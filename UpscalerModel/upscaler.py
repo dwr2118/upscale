@@ -192,11 +192,12 @@ def augment_images(input_dir, input_files='HiResImages', output_dir='Augmented',
         # base_dir = os.getcwd()
         # base_dir = os.path.join(base_dir, input_dir)
         # input_path = os.path.join(input_dir, filename)
-        input_path = filename
+        base = os.path.basename(filename)
+        input_path = os.path.join(input_dir, base)
 
 
         # Extract the file name and extension
-        name, ext = os.path.splitext(filename)
+        name, ext = os.path.splitext(base)
 
         # Read the image
         image = cv2.imread(input_path)
@@ -258,7 +259,7 @@ def main():
     print(len(to_augment))
     # return
     # Generated new augmented images
-    augment_images("high_res_img", to_augment, "low_res_img")
+    augment_images("high_res_img", to_augment, low_res_img)
 
     # Fetch all image file names in the augmented path
     aug_paths = [os.path.join(low_res_img, fname)
@@ -289,7 +290,7 @@ def main():
     # train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
 
 
-    augment_images("high_res_img", to_augment_for_test, "low_res_img_test")
+    augment_images("high_res_img", to_augment_for_test, low_res_img_test)
 
     # return
 
