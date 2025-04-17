@@ -294,12 +294,11 @@ def main():
 
     # return
 
-    aug_paths_test = [os.path.join(low_res_img, fname)
+    aug_paths_test = [os.path.join(low_res_img_test, fname)
                             for fname in os.listdir(low_res_img_test)
                             if fname.lower().endswith(('.jpg', '.jpeg', '.png'))]
     
     test_dataset = []
-    
     next_img = 0
     count = 0
     for test_img in aug_paths_test:
@@ -309,6 +308,15 @@ def main():
         else:
             next_img += 1
             count = 0
+
+
+    for i in train_dataset:
+        print(i)
+    
+    for j in test_dataset:
+        print(j)
+
+    return
 
     # Grab the L*, ab* colorized dataset
     train_dataset = UpscalerDataset(train_dataset)
