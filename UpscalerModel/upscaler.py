@@ -187,8 +187,8 @@ def augment_images(input_dir, input_files='HiResImages', output_dir='Augmented',
 
     # print(input_files)
     for filename in input_files:
-        print(filename)
-        return
+        # print(filename)
+        # return
         # base_dir = os.getcwd()
         # base_dir = os.path.join(base_dir, input_dir)
         # input_path = os.path.join(input_dir, filename)
@@ -291,7 +291,7 @@ def main():
 
     augment_images("high_res_img", to_augment_for_test, "low_res_img_test")
 
-    return
+    # return
 
     aug_paths_test = [os.path.join(low_res_img, fname)
                             for fname in os.listdir(low_res_img_test)
