@@ -303,7 +303,7 @@ def main():
     count = 0
     for test_img in aug_paths_test:
         test_dataset.append((test_img, to_augment_for_test[next_img]))
-        if count != 5:
+        if count != 4:
             count += 1
         else:
             next_img += 1
