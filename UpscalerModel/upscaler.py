@@ -310,15 +310,15 @@ def main():
             count = 0
 
 
-    for i in train_dataset:
-        print(i)
+    # Confirming if the train and test dataset are linked with
+    # correct high res image
+    # for i in train_dataset:
+    #     print(i)
     
-    for j in test_dataset:
-        print(j)
+    # for j in test_dataset:
+    #     print(j)
 
-    return
-
-    # Grab the L*, ab* colorized dataset
+    # Grab the RGB tensor from the model
     train_dataset = UpscalerDataset(train_dataset)
     
     # Redundant again, but keep the last 10% original into the test dataset
