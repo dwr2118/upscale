@@ -12,3 +12,19 @@ Total runtime: 0.71 seconds
 Total runtime: 0.00 seconds
 ---------------------------------------
 Total runtime: 0.00 seconds
+Training time: 247.16 seconds
+---------------------------------------
+---------------------------------------
+Total runtime: 0.21 seconds
+---------------------------------------
+Total runtime: 0.21 seconds
+---------------------------------------
+Total runtime: 0.21 seconds
+Training time: 247.45 seconds
+---------------------------------------
+---------------------------------------
+Total runtime: 249.18 seconds
+Training time: 317.42 seconds
+---------------------------------------
+---------------------------------------
+Total runtime: 320.00 seconds
