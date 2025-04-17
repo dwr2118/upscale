@@ -275,7 +275,7 @@ def main():
     count = 0
     for train_img in aug_paths:
         train_dataset.append((train_img, to_augment[next_img]))
-        if count != 5:
+        if count != 4:
             count += 1
         else:
             next_img += 1
