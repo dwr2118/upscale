@@ -21,7 +21,7 @@ torch.set_default_dtype(torch.float32)
 class ResidualBlock(nn.Module):
     """
     Residual Block with two conv layers
-    Helps preserve info and eases training of deep models
+    Helps preserve info and eases training of deep g_models
     """
     def __init__(self, num_features):
         super(ResidualBlock, self).__init__()
@@ -99,6 +99,31 @@ class UpscalerCNN(nn.Module):
         out = self.output_conv(out)
         return out
 
+# ==== DISCRIMINATOR CNN ====
+# Source for understanding Discriminator:
+# https://www.geoffreylitt.com/2017/06/04/enhance-upscaling-images-with-generative-adversarial-neural-networks
+class DiscriminatorCNN(nn.Module):
+    def __init__(self, in_channels=3, base_filters=64):
+        super().__init__()
+
+        self.g_model = nn.Sequential(
+            self.d_block(in_channels,     base_filters, bn=False),     #  64×H/2×W/2
+            self.d_block(base_filters,    base_filters*2),              # 128×H/4×W/4
+            self.d_block(base_filters*2,  base_filters*4),              # 256×H/8×W/8
+            self.d_block(base_filters*4,  base_filters*8, stride=1),    # 512×H/8×W/8
+            nn.Conv2d(base_filters*8, 1, kernel_size=4, padding=1) # 1×H/8−1×W/8−1
+        )
+    
+    def d_block(in_channels, out_channels, stride=2, bn=True):
+        layers = [nn.Conv2d(in_channels, out_channels, kernel_size=4, stride=stride, padding=1)]
+        if bn: layers.append(nn.BatchNorm2d(out_channels))
+        layers.append(nn.LeakyReLU(0.2, inplace=True))
+        return nn.Sequential(*layers)
+    
+    def forward(self, img):
+        # returns a patch of real/fake logits
+        return self.g_model(img)
+
 # ==== DATASET ====
 class UpscalerDataset(Dataset):
     def __init__(self, image_paths):
@@ -130,22 +155,22 @@ class UpscalerDataset(Dataset):
 
         return low_tensor, high_tensor
 
-# ==== TEST, EVALUATE, AND SAVE MODEL IMAGES ====
-def evaluate_and_save(model, test_loader, device, output_folder="PredictedImg"):
+# ==== TEST, EVALUATE, AND SAVE g_model IMAGES ====
+def evaluate_and_save(g_model, test_loader, device, output_folder="PredictedImg"):
     # make the PredictedColorizedImg directory if it exist
     os.makedirs(output_folder, exist_ok=True)
 
-    # Evaluate the model 
-    model.eval()
+    # Evaluate the g_model 
+    g_model.eval()
     total_loss = 0
     count = 0
 
     with torch.no_grad():
-        for i, (low_res_batch, high_res_batch) in enumerate(test_loader):
+        for i, (low_res_batch, real_high_res_batch) in enumerate(test_loader):
             low_res_batch = low_res_batch.to(device)
-            high_res_batch = high_res_batch.to(device)
-            preds = model(low_res_batch)
-            loss = nn.functional.mse_loss(preds, high_res_batch, reduction='mean')
+            real_high_res_batch = real_high_res_batch.to(device)
+            preds = g_model(low_res_batch)
+            loss = nn.functional.mse_loss(preds, real_high_res_batch, reduction='mean')
             total_loss += loss.item()
             # count += low_res_batch.size(0)
             count += 1
@@ -299,17 +324,29 @@ def main():
     train_loader = DataLoader(train_dataset, batch_size=5, shuffle = False)
     test_loader = DataLoader(test_dataset, batch_size=5, shuffle=False)
 
-    # Grab custom made Upscaler CNN model
+    # Grab custom made Upscaler CNN Generator Model and Discriminator Model
     upscale_factor = 2 # Images are reduced by 50% size, so need to double output
     num_channels = 3 # RGB has 3 channels
     base_filter = 64 # base filter used for upsampling with pixel shuffling
-    model = UpscalerCNN(upscale_factor, num_channels, base_filter)
-    criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
+    g_model = UpscalerCNN(upscale_factor, num_channels, base_filter)
+    d_model = DiscriminatorCNN()
 
-    # Determine whether we're running the model on cuda or cpu 
+    # Generator and Discriminator Model
+    G_optimizer = torch.optim.Adam(g_model.parameters(), lr=1e-4)
+    D_optimizer = torch.optim.Adam(d_model.parameters(), lr=1e-4)
+
+    # adversarial loss uses binary cross entropy
+    adv_loss = nn.BCEWithLogitsLoss()
+    # pixel loss for generator uses MSE
+    pixel_loss = nn.MSELoss()
+
+    # lambda term for adversarial loss in generator
+    l_adv = 1e-3
+
+    # Determine whether we're running the g_model on cuda or cpu 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model.to(device)
+    g_model.to(device)
+    d_model.to(device)
     
     train_start_time = time.time()
     
@@ -317,33 +354,61 @@ def main():
     num_epochs = 10
     for epoch in range(num_epochs):
         total_loss = 0
-        # Train model first
-        model.train()
+        # Train g_model first
+        g_model.train()
         
-        # For each low_res_batch, high_res_batch from the train_loader
+        # For each low_res_batch, real_high_res_batch from the train_loader
         # Check how accurate the images are to the colored one
-        for low_res_batch, high_res_batch in train_loader:
-            low_res_batch, high_res_batch = low_res_batch.to(device), high_res_batch.to(device)
+        for low_res_batch, real_high_res_batch in train_loader:
+            low_res_batch, real_high_res_batch = low_res_batch.to(device), real_high_res_batch.to(device)
 
-            # clears gradient from prev step
-            optimizer.zero_grad()
+            # make generated image from Generator Model
+            pred_gen_img = g_model(low_res_batch)
 
-            # make prediction
-            preds = model(low_res_batch)
+            """ First train on Discriminator """
+            # Clear gradient from previous step
+            D_optimizer.zero_grad()
+
+            # Predict on real high res image and adversarial loss
+            pred_real_img = d_model(real_high_res_batch)
+            loss_real_img = adv_loss(pred_real_img, torch.ones_like(pred_real_img))
+
+            # Predict on fake high res image and adversarial loss
+            pred_fake_img = d_model(pred_gen_img.detach())
+            loss_fake_img = adv_loss(pred_fake_img, torch.zeros_like(pred_fake_img))
+
+            # Add up total loss and propagate the loss back and update the step
+            loss_discriminator = 0.5 * (loss_real_img + loss_fake_img)
+            loss_discriminator.backward()
+            D_optimizer.step()
+
+
+            """ Then train on Generator """
+
+            # Clears gradient from prev step
+            G_optimizer.zero_grad()
 
             # Calculate loss
-            loss = criterion(preds, high_res_batch)
+            loss_pixel = pixel_loss(pred_gen_img, real_high_res_batch)
+
+            pred_fake_for_G = D(pred_gen_img)
+            loss_adv = adv_loss(pred_fake_for_G, torch.ones_like(pred_fake_for_G))
+
+            loss_generator = loss_pixel + l_adv * loss_adv
 
             # perform backpropagation
-            loss.backward()
+            loss_generator.backward()
 
-            # Update model's parameters 
-            optimizer.step()
+            # Update g_model's parameters 
+            G_optimizer.step()
 
-            total_loss += loss.item()
+            # total_loss += loss_pixel.item()
         
         # Print out epoch results
-        print(f"Epoch {epoch+1}/{num_epochs}: Training Loss = {total_loss/len(train_loader):.4f}")
+        # print(f"Epoch {epoch+1}/{num_epochs}: Training Loss = {total_loss/len(train_loader):.4f}")
+        print(f"[Epoch {epoch+1}/{num_epochs}] "
+          f"D Loss: {loss_discriminator.item():.4f}, G Loss: {loss_generator.item():.4f} "
+          f"(pix: {loss_pixel.item():.4f}, adv: {loss_adv.item():.4f})")
         
         # Training time results
         output_file = "cpu_upscaler.txt"  # Specify the file name
@@ -371,7 +436,7 @@ def main():
             os.remove(f)
 
     # After training, save predictions
-    evaluate_and_save(model, test_loader, device=device)
+    evaluate_and_save(g_model, test_loader, device=device)
 
 if __name__ == "__main__":
     # Record the start time
