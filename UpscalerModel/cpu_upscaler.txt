@@ -102,3 +102,24 @@ Epoch 9/10: Training Loss = 0.0047
 --- CPU Colorization Results ---
 Epoch 10/10: Training Loss = 0.0045
 Test MSE: 0.003883
+--- CPU Colorization Results ---
+Epoch 1/10: Training Loss = 0.0000
+--- CPU Colorization Results ---
+Epoch 2/10: Training Loss = 0.0000
+--- CPU Colorization Results ---
+Epoch 3/10: Training Loss = 0.0000
+--- CPU Colorization Results ---
+Epoch 4/10: Training Loss = 0.0000
+--- CPU Colorization Results ---
+Epoch 5/10: Training Loss = 0.0000
+--- CPU Colorization Results ---
+Epoch 6/10: Training Loss = 0.0000
+--- CPU Colorization Results ---
+Epoch 7/10: Training Loss = 0.0000
+--- CPU Colorization Results ---
+Epoch 8/10: Training Loss = 0.0000
+--- CPU Colorization Results ---
+Epoch 9/10: Training Loss = 0.0000
+--- CPU Colorization Results ---
+Epoch 10/10: Training Loss = 0.0000
+Test MSE: 0.005511
