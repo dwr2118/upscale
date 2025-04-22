@@ -110,7 +110,7 @@ class DiscriminatorCNN(nn.Module):
     (for H,W divisible by 16)
     """
     def __init__(self, in_channels=3, base_filters=64):
-        super(Discriminator, self).__init__()
+        super(DiscriminatorCNN, self).__init__()
 
         def conv_block(in_c, out_c, stride=2, batch_norm=True):
             layers = [nn.Conv2d(in_c, out_c, kernel_size=4, stride=stride, padding=1)]
