@@ -102,27 +102,39 @@ class UpscalerCNN(nn.Module):
 # ==== DISCRIMINATOR CNN ====
 # Source for understanding Discriminator:
 # https://www.geoffreylitt.com/2017/06/04/enhance-upscaling-images-with-generative-adversarial-neural-networks
-class DiscriminatorCNN(nn.Module):
+class Discriminator(nn.Module):
+    """
+    Uses a PatchGAN discriminator approach 
+    Classifies each N x N patch as real or fake.
+    Given an input of 3 x H x W and and output of 1 x (H/16) x (W/16) 
+    (for H,W divisible by 16)
+    """
     def __init__(self, in_channels=3, base_filters=64):
-        super().__init__()
+        super(Discriminator, self).__init__()
 
-        self.g_model = nn.Sequential(
-            self.d_block(in_channels,     base_filters, bn=False),     #  64×H/2×W/2
-            self.d_block(base_filters,    base_filters*2),              # 128×H/4×W/4
-            self.d_block(base_filters*2,  base_filters*4),              # 256×H/8×W/8
-            self.d_block(base_filters*4,  base_filters*8, stride=1),    # 512×H/8×W/8
-            nn.Conv2d(base_filters*8, 1, kernel_size=4, padding=1) # 1×H/8−1×W/8−1
+        def conv_block(in_c, out_c, stride=2, batch_norm=True):
+            layers = [nn.Conv2d(in_c, out_c, kernel_size=4, stride=stride, padding=1)]
+            if batch_norm:
+                layers.append(nn.BatchNorm2d(out_c))
+            layers.append(nn.LeakyReLU(0.2, inplace=True))
+            return nn.Sequential(*layers)
+
+        self.model = nn.Sequential(
+            # input is (in_channels) x H x W
+            conv_block(in_channels,       base_filters,  stride=2,  batch_norm=False),  # 64 x H/2 x W/2
+            conv_block(base_filters,      base_filters*2,          stride=2),          # 128 x H/4 x W/4
+            conv_block(base_filters*2,    base_filters*4,          stride=2),          # 256 x H/8 x W/8
+            conv_block(base_filters*4,    base_filters*8,          stride=1),          # 512 x H/8 x W/8
+            # final conv to get 1-channel output (the “realness” score per patch)
+            nn.Conv2d(base_filters*8, 1, kernel_size=4, stride=1, padding=1)          # 1 x H/8-1 x W/8-1
         )
-    
-    def d_block(in_channels, out_channels, stride=2, bn=True):
-        layers = [nn.Conv2d(in_channels, out_channels, kernel_size=4, stride=stride, padding=1)]
-        if bn: layers.append(nn.BatchNorm2d(out_channels))
-        layers.append(nn.LeakyReLU(0.2, inplace=True))
-        return nn.Sequential(*layers)
-    
-    def forward(self, img):
-        # returns a patch of real/fake logits
-        return self.g_model(img)
+
+    def forward(self, x):
+        """
+        x: tensor of shape (B, in_channels, H, W)
+        returns: tensor of shape (B, 1, H_out, W_out) w/ logits
+        """
+        return self.model(x)
 
 # ==== DATASET ====
 class UpscalerDataset(Dataset):
