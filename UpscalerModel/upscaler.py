@@ -102,7 +102,7 @@ class UpscalerCNN(nn.Module):
 # ==== DISCRIMINATOR CNN ====
 # Source for understanding Discriminator:
 # https://www.geoffreylitt.com/2017/06/04/enhance-upscaling-images-with-generative-adversarial-neural-networks
-class Discriminator(nn.Module):
+class DiscriminatorCNN(nn.Module):
     """
     Uses a PatchGAN discriminator approach 
     Classifies each N x N patch as real or fake.
