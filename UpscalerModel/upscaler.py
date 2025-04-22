@@ -403,7 +403,7 @@ def main():
             # Calculate loss
             loss_pixel = pixel_loss(pred_gen_img, real_high_res_batch)
 
-            pred_fake_for_G = D(pred_gen_img)
+            pred_fake_for_G = d_model(pred_gen_img)
             loss_adv = adv_loss(pred_fake_for_G, torch.ones_like(pred_fake_for_G))
 
             loss_generator = loss_pixel + l_adv * loss_adv
