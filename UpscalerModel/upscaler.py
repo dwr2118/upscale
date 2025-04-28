@@ -371,6 +371,13 @@ def main():
 
     # Running with 10 epochs
     num_epochs = 10
+    
+    # Training time results
+    upscaler_val_f = "upscaler_validate.txt"  # Specify the file name
+    upscaler_epoch_f = "upscaler_epoch.txt"
+
+    val_f = open(upscaler_val_f, "a")
+    epoch_f = open(upscaler_epoch_f, "a")
 
     for fold, (train_idx, val_idx) in enumerate(kfold.split(train_dataset)):
 
@@ -468,15 +475,16 @@ def main():
             # f"D Loss: {loss_discriminator.item():.4f}, G Loss: {loss_generator.item():.4f} "
             # f"(pix: {loss_pixel.item():.4f}, adv: {loss_adv.item():.4f}) ")
             
-                # Training time results
-                output_file = "upscaler_res.txt"  # Specify the file name
-                with open(output_file, "a") as f:
-                    print(f"--- Upscaler Results ---", file=f)
-                    # print(f"Epoch {epoch+1}/{num_epochs}: Training Loss = {total_loss/len(train_loader):.4f}", file=f)
-                    print(f"Fold {fold + 1} [Epoch {epoch+1}/{num_epochs}] "
-                    f"D Loss: {loss_discriminator.item():.4f}, G Loss: {loss_generator.item():.4f} "
-                    f"(pix: {loss_pixel.item():.4f}, adv: {loss_adv.item():.4f}) "
-                    f"Val MSE = {val_pixel_loss:.4f}", file=f)
+                # print(f"--- Upscaler Results ---", file=f)
+                # print(f"Epoch {epoch+1}/{num_epochs}: Training Loss = {total_loss/len(train_loader):.4f}", file=f)
+
+                print(f"--- Validation Results ---", file=val_f)
+                print(f"Fold {fold + 1} [Epoch {epoch+1}/{num_epochs}] "
+                f"Val MSE = {val_pixel_loss:.4f}", file=val_f)
+            
+            print(f"Fold {fold + 1} [Epoch {epoch+1}/{num_epochs}] "
+            f"D Loss: {loss_discriminator.item():.4f}, G Loss: {loss_generator.item():.4f} "
+            f"(pix: {loss_pixel.item():.4f}, adv: {loss_adv.item():.4f}) ", file=epoch_f)
         
     train_end_time = time.time()
     print(f"Training time: {train_end_time - train_start_time:.2f} seconds")
@@ -485,7 +493,10 @@ def main():
     with open(output_file, "a") as f:
         print(f"Training time: {train_end_time - train_start_time:.2f} seconds", file=f)
         print(f"---------------------------------------", file=f)
-    
+        f.close()
+        
+    epoch_f.close()
+    val_f.close()
     # Construct path to the predicted colorized img directory
     predict_dir = os.path.join(base_dir, "PredictedImg/")
     # Create folders if they do not exist
