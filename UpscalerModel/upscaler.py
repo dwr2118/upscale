@@ -379,6 +379,8 @@ def main():
     val_f = open(upscaler_val_f, "a")
     epoch_f = open(upscaler_epoch_f, "a")
 
+    val_scores = []
+
     for fold, (train_idx, val_idx) in enumerate(kfold.split(train_dataset)):
 
         # Have both 
@@ -468,7 +470,8 @@ def main():
                 val_pixel_loss /= len(val_loader)
 
                 # total_loss += loss_pixel.item()
-            
+                val_scores.append(val_pixel_loss)
+
             # Print out epoch results
             # print(f"Epoch {epoch+1}/{num_epochs}: Training Loss = {total_loss/len(train_loader):.4f}")
             # print(f"Fold {fold + 1} [Epoch {epoch+1}/{num_epochs}] "
@@ -478,14 +481,30 @@ def main():
                 # print(f"--- Upscaler Results ---", file=f)
                 # print(f"Epoch {epoch+1}/{num_epochs}: Training Loss = {total_loss/len(train_loader):.4f}", file=f)
 
-                print(f"--- Validation Results ---", file=val_f)
-                print(f"Fold {fold + 1} [Epoch {epoch+1}/{num_epochs}] "
-                f"Val MSE = {val_pixel_loss:.4f}", file=val_f)
+                # print(f"--- Validation Results ---", file=val_f)
+                # print(f"Fold {fold + 1} [Epoch {epoch+1}/{num_epochs}] "
+                # f"Val MSE = {val_pixel_loss:.4f}")
+
+                # print(f"--- Validation Results ---", file=val_f)
+                # print(f"Fold {fold + 1} [Epoch {epoch+1}/{num_epochs}] "
+                # f"Val MSE = {val_pixel_loss:.4f}", file=val_f)
+            
+            print(f"Fold {fold + 1} [Epoch {epoch+1}/{num_epochs}] "
+            f"D Loss: {loss_discriminator.item():.4f}, G Loss: {loss_generator.item():.4f} "
+            f"(pix: {loss_pixel.item():.4f}, adv: {loss_adv.item():.4f}) ")
             
             print(f"Fold {fold + 1} [Epoch {epoch+1}/{num_epochs}] "
             f"D Loss: {loss_discriminator.item():.4f}, G Loss: {loss_generator.item():.4f} "
             f"(pix: {loss_pixel.item():.4f}, adv: {loss_adv.item():.4f}) ", file=epoch_f)
-        
+    
+    avg_mse = np.mean(val_scores)
+    print(f"--- Validation Results ---")
+    print(f"Average Val MSE = {avg_mse:.4f}")
+
+    print(f"--- Validation Results ---", file=val_f)
+    print(f"Average Val MSE = {avg_mse:.4f}", file=val_f)
+    
+
     train_end_time = time.time()
     print(f"Training time: {train_end_time - train_start_time:.2f} seconds")
     # Write the runtime to a file
