@@ -33,7 +33,7 @@ def destruct_all_videos_in_directory(directory):
             print(f"Processing {video_path}...")
             destruct_video(video_path)
 
-def reconstruct_video(base_dir):
+def reconstruct_video(base_dir, desired_fps=30):
     title = os.path.basename(base_dir)
     frames_dir = os.path.join(base_dir, f"{title}_frames")
     audio_path = os.path.join(base_dir, f"{title}_audio.mp3")
@@ -52,7 +52,7 @@ def reconstruct_video(base_dir):
 
     first_frame = cv2.imread(frame_files[0])
     height, width, _ = first_frame.shape
-    fps = 30  # Change if you know the original FPS (You might have to do math to figure it out based on original)
+    fps = desired_fps  # Change if you know the original FPS (You might have to do math to figure it out based on original)
 
     clip = ImageSequenceClip(frame_files, fps=fps)
     clip = clip.with_audio(AudioFileClip(audio_path))  # <-- Updated here
