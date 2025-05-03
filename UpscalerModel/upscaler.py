@@ -253,6 +253,14 @@ def augment_images(input_dir, input_files='HiResImages', output_dir='Augmented',
         
     print(f"Processed {processed_count} images")
 
+def save_model_weights(model, save_path="models/upscaler_model.pth"):
+    """
+    Save the model weights to a .pth file.
+    """
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)  # Ensure the directory exists
+    torch.save(model.state_dict(), save_path)
+    print(f"Model weights saved to {save_path}")
+
 # ==== MAIN ====
 def main():
     # Get the current working directory (where the script is being run from)
@@ -527,6 +535,9 @@ def main():
         for f in files:
             os.remove(f)
 
+    # Save the model weights
+    save_model_weights(g_model, save_path="models/upscaler_model.pth")
+    
     # After training, save predictions
     evaluate_and_save(g_model, test_loader, device=device)
 
