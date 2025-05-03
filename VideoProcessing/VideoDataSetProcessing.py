@@ -1,5 +1,6 @@
 import os
 import cv2
+import argparse
 from moviepy import VideoFileClip, ImageSequenceClip, AudioFileClip
 
 def destruct_video(video_path):
@@ -55,7 +56,7 @@ def reconstruct_video(base_dir, desired_fps=30):
     fps = desired_fps  # Change if you know the original FPS (You might have to do math to figure it out based on original)
 
     clip = ImageSequenceClip(frame_files, fps=fps)
-    clip = clip.with_audio(AudioFileClip(audio_path))  # <-- Updated here
+    clip = clip.with_audio(AudioFileClip(audio_path))
     
     reconstruction_dir = "reconstructed"
     os.makedirs(reconstruction_dir, exist_ok=True)
@@ -78,15 +79,33 @@ def reconstruct_all_videos_in_directory(parent_dir="destructed"):
             except (FileNotFoundError, ValueError) as e:
                 print(f"Skipping {title}: {e}")
 
+def main():
+    parser = argparse.ArgumentParser(description="Process videos for deconstruction or reconstruction.")
+    parser.add_argument("-d", "--destruct", type=str, help="Directory containing videos to destruct.")
+    parser.add_argument("-r", "--reconstruct", type=str, help="Directory containing destructed content to reconstruct.")
 
-# Reconstruction Example Usage
-"""
-to_perform_reconstruction_on_directory = "destructed"
-reconstruct_all_videos_in_directory(to_perform_reconstruction_on_directory)
-"""
+    args = parser.parse_args()
 
-# Deconstruction Example Usage
-"""
-video_directory = "video_data_set"
-destruct_all_videos_in_directory(video_directory)
-"""
+    if args.destruct and args.reconstruct:
+        print("Error: Please provide only one of -d (destruct) or -r (reconstruct) at a time.")
+        return
+
+    if args.destruct:
+        if not os.path.exists(args.destruct):
+            print(f"Error: Directory not found: {args.destruct}")
+            return
+        print(f"Destructing videos in directory: {args.destruct}")
+        destruct_all_videos_in_directory(args.destruct)
+
+    elif args.reconstruct:
+        if not os.path.exists(args.reconstruct):
+            print(f"Error: Directory not found: {args.reconstruct}")
+            return
+        print(f"Reconstructing videos from directory: {args.reconstruct}")
+        reconstruct_all_videos_in_directory(args.reconstruct)
+
+    else:
+        print("Error: Please provide either -d (destruct) or -r (reconstruct).")
+
+if __name__ == "__main__":
+    main()
