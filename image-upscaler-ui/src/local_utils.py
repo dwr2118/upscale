@@ -11,6 +11,13 @@ def save_low_res_image(uploaded_file, lr_folder):
 
     return file_path
 
+def save_low_res_video(uploaded_file, save_dir):
+    import os
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+    with open(os.path.join(save_dir, uploaded_file.name), "wb") as f:
+        f.write(uploaded_file.getbuffer())
+
 def call_local_model(lr_folder, output_folder):
     import subprocess
 
