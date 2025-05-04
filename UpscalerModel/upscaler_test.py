@@ -3,6 +3,7 @@ import glob
 import cv2
 import numpy as np
 import torch
+import argparse
 from upscaler import UpscalerCNN
 
 def load_model(weights_path, upscale_factor=2, num_channels=3, base_filter=64, device="cpu"):
@@ -43,9 +44,19 @@ def upscale_images(model, input_folder="LR", output_folder="results", device="cp
         print(f"Upscaled image saved to: {output_path}")
 
 def main():
-    weights_path = "models/upscaler_model.pth"
-    input_folder = "LR"
-    output_folder = "results"
+    parser = argparse.ArgumentParser(description="Upscale images using a trained model.")
+    parser.add_argument("-w", "--weights", type=str, default="models/upscaler_model.pth",
+                        help="Path to the model weights file (default: models/upscaler_model.pth).")
+    parser.add_argument("-i", "--input", type=str, default="LR",
+                        help="Path to the input folder containing low-resolution images (default: LR).")
+    parser.add_argument("-o", "--output", type=str, default="results",
+                        help="Path to the output folder to save upscaled images (default: results).")
+
+    args = parser.parse_args()
+
+    weights_path = args.weights
+    input_folder = args.input
+    output_folder = args.output
 
     if not os.path.exists(weights_path):
         print(f"Model weights not found at {weights_path}. Please train the model first.")

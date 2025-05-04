@@ -44,9 +44,10 @@ def reconstruct_video(base_dir, desired_fps=30):
     if not os.path.exists(audio_path):
         raise FileNotFoundError(f"Audio file not found: {audio_path}")
 
+    # Include both .jpg and .png files
     frame_files = sorted([
         os.path.join(frames_dir, f) for f in os.listdir(frames_dir)
-        if f.lower().endswith(".jpg")
+        if f.lower().endswith((".jpg", ".png"))
     ])
     if not frame_files:
         raise ValueError(f"No frames found in {frames_dir}")
