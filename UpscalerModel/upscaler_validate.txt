@@ -1,2 +1,4 @@
 --- Validation Results ---
 Average Val MSE = 0.0137
+--- Validation Results ---
+Average Val MSE = 0.0129
