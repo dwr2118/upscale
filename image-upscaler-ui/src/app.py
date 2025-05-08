@@ -41,8 +41,8 @@ def main():
                     ssh_user=SSH_USER,
                     ssh_key_path=SSH_KEY_PATH,
                     local_video_path="LR_Videos/" + uploaded_file.name,
-                    remote_video_path="/home/diegorivaslazala/final/gan-upscale/UpscalerModel/LR_Videos/" + uploaded_file.name,
-                    remote_results_path="/home/diegorivaslazala/final/gan-upscale/UpscalerModel/results_videos/",
+                    remote_video_path=f"/home/{SSH_USER}/gan-upscale/UpscalerModel/LR_Videos/" + uploaded_file.name,
+                    remote_results_path=f"/home/{SSH_USER}/gan-upscale/UpscalerModel/results_videos/",
                     local_results_path="results_videos/"
                 )
                 st.success("Video upscaling completed! Check the results_videos/ folder.")
@@ -83,8 +83,8 @@ def main():
                     ssh_user=SSH_USER,
                     ssh_key_path=SSH_KEY_PATH,
                     local_image_path="LR/" + uploaded_file.name,
-                    remote_image_path="/home/diegorivaslazala/final/gan-upscale/UpscalerModel/LR/" + uploaded_file.name,
-                    remote_results_path="/home/diegorivaslazala/final/gan-upscale/UpscalerModel/results/",
+                    remote_image_path=f"/home/{SSH_USER}/gan-upscale/UpscalerModel/LR/" + uploaded_file.name,
+                    remote_results_path="/home/{SSH_USER}/gan-upscale/UpscalerModel/results/",
                     local_results_path="results/"
                 )
                 st.success("Image upscaling completed! Check the results/ folder.")
