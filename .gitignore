@@ -1,3 +1,4 @@
-image-upscaler-ui/src/credentials.py
 .DS_Store
 image-upscaler-ui/src/__pycache__/*
+image-upscaler-ui/src/credentials.py
+
