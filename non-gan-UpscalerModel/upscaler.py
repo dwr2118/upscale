@@ -159,7 +159,7 @@ def evaluate_and_save(model, test_loader, device, output_folder="PredictedImg"):
     # Print out mse loss of the testing
     mse = total_loss / count
     print(f"Test MSE: {mse:.6f}")
-    output_file = "cpu_upscaler.txt"  # Specify the file name
+    output_file = "upscaler_res.txt"  # Specify the file name
     with open(output_file, "a") as f:
         print(f"Test MSE: {mse:.6f}", file=f)
 
@@ -354,7 +354,7 @@ def main():
         print(f"Epoch {epoch+1}/{num_epochs}: Training Loss = {total_loss/len(train_loader):.4f}")
         
         # Training time results
-        output_file = "cpu_upscaler.txt"  # Specify the file name
+        output_file = "upscaler_res.txt"  # Specify the file name
         with open(output_file, "a") as f:
             # print(f"--- CPU Colorization Results ---", file=f)
             print(f"Epoch {epoch+1}/{num_epochs}: Training Loss = {total_loss/len(train_loader):.4f}", file=f)
