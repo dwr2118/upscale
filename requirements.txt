@@ -24,10 +24,18 @@ nvidia-nvtx-cu12==12.4.127
 opencv-python==4.11.0.86
 packaging==24.2
 pillow==11.1.0
+paramiko==3.3.1
+psutil==5.9.5
+pycryptodome==3.18.0
+pyparsing==3.1.2
+python-dateutil==2.8.2
+pytz==2023.3
 scikit-image==0.25.2
 scikit-learn==1.6.1
 scipy==1.15.2
 setuptools==78.1.0
+six==1.16.0
+streamlit==1.24.0
 sympy==1.13.1
 threadpoolctl==3.6.0
 tifffile==2025.3.30
@@ -35,3 +43,4 @@ torch==2.6.0
 torchvision==0.21.0
 triton==3.2.0
 typing_extensions==4.13.1
+watchdog==3.0.0

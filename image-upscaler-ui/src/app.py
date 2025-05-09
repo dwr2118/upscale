@@ -21,18 +21,19 @@ def main():
     # File uploader for low-resolution images or videos
     uploaded_file = st.file_uploader("Choose a low-resolution image or video...", type=["jpg", "jpeg", "png", "mp4", "avi", "mov", "mkv"])
     
-    #TODO: need to handle file names with spaces in them 
-    
     if uploaded_file is not None:
+        # Replace spaces in the file name with underscores
+        sanitized_file_name = uploaded_file.name.replace(" ", "_")
+        
         # Determine if the uploaded file is an image or a video
-        file_extension = os.path.splitext(uploaded_file.name)[-1].lower()
+        file_extension = os.path.splitext(sanitized_file_name)[-1].lower()
         is_video = file_extension in ('.mp4', '.avi', '.mov', '.mkv')
         
         if is_video:
             st.write("Detected a video file. Processing will use the video upscaling pipeline.")
             
-            # Save the uploaded video locally
-            save_low_res_video(uploaded_file, "LR_Videos")
+            # Save the uploaded video locally with the sanitized file name
+            save_low_res_video(uploaded_file, "LR_Videos", sanitized_file_name)
             
             if st.button("Upscale Video"):
                 st.write("Processing video on EC2 instance via SSH...")
@@ -40,22 +41,22 @@ def main():
                     ssh_host=SSH_HOST,
                     ssh_user=SSH_USER,
                     ssh_key_path=SSH_KEY_PATH,
-                    local_video_path="LR_Videos/" + uploaded_file.name,
-                    remote_video_path=f"/home/{SSH_USER}/gan-upscale/UpscalerModel/LR_Videos/" + uploaded_file.name,
+                    local_video_path="LR_Videos/" + sanitized_file_name,
+                    remote_video_path=f"/home/{SSH_USER}/gan-upscale/UpscalerModel/LR_Videos/" + sanitized_file_name,
                     remote_results_path=f"/home/{SSH_USER}/gan-upscale/UpscalerModel/results_videos/",
                     local_results_path="results_videos/"
                 )
                 st.success("Video upscaling completed! Check the results_videos/ folder.")
                 
                 # Add a download button for the upscaled video
-                upscaled_video_path = "results_videos/" + "reconstructed_" + os.path.splitext(uploaded_file.name)[0] + ".mp4"
+                upscaled_video_path = "results_videos/" + "reconstructed_" + os.path.splitext(sanitized_file_name)[0] + ".mp4"
 
                 # Display the low-resolution and upscaled videos
                 col1, col2 = st.columns(2)
 
                 with col1:
                     st.write("### Low-Resolution Video:")
-                    low_res_video_path = "LR_Videos/" + uploaded_file.name
+                    low_res_video_path = "LR_Videos/" + sanitized_file_name
                     st.video(low_res_video_path)
 
                 with col2:
@@ -73,8 +74,8 @@ def main():
         else:
             st.write("Detected an image file. Processing will use the image upscaling pipeline.")
             
-            # Save the uploaded image locally
-            save_low_res_image(uploaded_file, "LR")
+            # Save the uploaded image locally with the sanitized file name
+            save_low_res_image(uploaded_file, "LR", sanitized_file_name)
             
             if st.button("Upscale Image"):
                 st.write("Processing on EC2 instance via SSH...")
@@ -82,16 +83,16 @@ def main():
                     ssh_host=SSH_HOST,
                     ssh_user=SSH_USER,
                     ssh_key_path=SSH_KEY_PATH,
-                    local_image_path="LR/" + uploaded_file.name,
-                    remote_image_path=f"/home/{SSH_USER}/gan-upscale/UpscalerModel/LR/" + uploaded_file.name,
+                    local_image_path="LR/" + sanitized_file_name,
+                    remote_image_path=f"/home/{SSH_USER}/gan-upscale/UpscalerModel/LR/" + sanitized_file_name,
                     remote_results_path="/home/{SSH_USER}/gan-upscale/UpscalerModel/results/",
                     local_results_path="results/"
                 )
                 st.success("Image upscaling completed! Check the results/ folder.")
                 
                 # Display the low-resolution and upscaled images
-                low_res_path = "LR/" + uploaded_file.name
-                upscaled_image_name = uploaded_file.name.split('.')[0]  # Extract the base name without extension
+                low_res_path = "LR/" + sanitized_file_name
+                upscaled_image_name = sanitized_file_name.split('.')[0]  # Extract the base name without extension
                 results_folder = "results/"
                 
                 # Find the upscaled image in the results folder
