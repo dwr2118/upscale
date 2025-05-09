@@ -168,3 +168,10 @@ If you need to create new weights or would like to perform the time-consuming ta
 python UpscalerModel/upscaler.py
 ```
 This script will train the upscaler model using the provided dataset and save the new weights in the models/ directory.
+
+To utilize the model outside of the user interface, input your low resolution 
+images into ```UpscalerModel/LR/``` and run: 
+```bash
+python UpscalerModel/upscaler_test.py 
+```
+The upscaled images will then populate the ```UpscalerModel/results/``` folder. 
