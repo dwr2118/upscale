@@ -2,6 +2,10 @@
 
 This project is a web application built using Streamlit that allows users to upscale low-resolution images using the ESRGAN model. The application provides an intuitive interface for uploading images and processing them on an AWS EC2 instance equipped with a GPU.
 
+# Demo
+
+[![Demo of Application](https://img.youtube.com/vi/acGnMiEcAGg/maxresdefault.jpg)](https://www.youtube.com/watch?v=acGnMiEcAGg)
+
 ## Project Structure
 
 ```
