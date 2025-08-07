@@ -2,6 +2,10 @@
 
 This project is a web application built using Streamlit that allows users to upscale low-resolution images using the ESRGAN model. The application provides an intuitive interface for uploading images and processing them on an AWS EC2 instance equipped with a GPU.
 
+# Motivation, Vision, and Technical Implementation of Image Upscaler
+
+The following [slides](https://docs.google.com/presentation/d/1s0bnAiOKTtljY6oqF3TKh6VBiRwCB7PGg7YUc4OLIbQ/edit?usp=sharing) is how we approached designing and modularized the process of creating the AI Image Upscaler model and having support for an intuitive interface for uploading images or videos to generate high quality images or videos.
+
 # Demo
 
 [![Demo of Application](https://img.youtube.com/vi/acGnMiEcAGg/maxresdefault.jpg)](https://www.youtube.com/watch?v=acGnMiEcAGg)
